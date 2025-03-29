@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dodge the Blocks!</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { text-align: center; background: #222; color: white; font-family: Arial, sans-serif; }
+        canvas { background: #111; display: block; margin: 20px auto; border: 2px solid white; }
+        .buttons { display: flex; justify-content: center; margin-top: 10px; }
+        button { width: 100px; height: 50px; font-size: 20px; margin: 5px; cursor: pointer; border: none; }
+        .left-btn { background: blue; color: white; }
+        .right-btn { background: red; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Dodge the Blocks!</h1>
+    <p>Tap LEFT or RIGHT to move. Survive as long as you can!</p>
+    <canvas id="gameCanvas"></canvas>
+    <div class="buttons">
+        <button class="left-btn" onclick="moveLeft()">Left</button>
+        <button class="right-btn" onclick="moveRight()">Right</button>
+    </div>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = 400;
+        canvas.height = 500;
+
+        let player = { x: 175, y: 450, width: 50, height: 50, speed: 20 };
+        let blocks = [];
+        let gameOver = false;
+        let score = 0;
+        let speedMultiplier = 1;
+
+        function spawnBlock() {
+            let size = Math.random() * 50 + 20;
+            blocks.push({ x: Math.random() * (canvas.width - size), y: -size, width: size, height: size, speed: 2 + speedMultiplier });
+        }
+
+        function moveLeft() {
+            if (player.x > 0) player.x -= player.speed;
+        }
+
+        function moveRight() {
+            if (player.x < canvas.width - player.width) player.x += player.speed;
+        }
+
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw player
+            ctx.fillStyle = "blue";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // Move and draw blocks
+            blocks.forEach((block, index) => {
+                block.y += block.speed;
+                ctx.fillStyle = "red";
+                ctx.fillRect(block.x, block.y, block.width, block.height);
+
+                // Check collision
+                if (
+                    block.y + block.height >= player.y &&
+                    block.x < player.x + player.width &&
+                    block.x + block.width > player.x
+                ) {
+                    gameOver = true;
+                }
+
+                // Remove blocks that go off screen
+                if (block.y > canvas.height) {
+                    blocks.splice(index, 1);
+                    score++;
+                    if (score % 5 === 0) speedMultiplier += 0.5; // Increase speed every 5 points
+                }
+            });
+
+            // Display score
+            ctx.fillStyle = "white";
+            ctx.font = "20px Arial";
+            ctx.fillText("Score: " + score, 10, 30);
+
+            if (gameOver) {
+                ctx.fillStyle = "red";
+                ctx.font = "30px Arial";
+                ctx.fillText("GAME OVER!", 120, 250);
+                return;
+            }
+
+            requestAnimationFrame(updateGame);
+        }
+
+        setInterval(spawnBlock, 1000);
+        updateGame();
+    </script>
+</body>
+</html>
