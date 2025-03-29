@@ -7,7 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { text-align: center; background: #222; color: white; font-family: Arial, sans-serif; }
-        canvas { background: #111; display: block; margin: 20px auto; border: 2px solid white; }
+        canvas { background: #111; display: block; margin: 20px auto; border: 2px solid white; cursor: pointer; }
         .buttons { display: flex; justify-content: center; margin-top: 10px; }
         button { width: 100px; height: 50px; font-size: 20px; margin: 5px; cursor: pointer; border: none; }
         .left-btn { background: blue; color: white; }
@@ -29,11 +29,16 @@
         canvas.width = 400;
         canvas.height = 500;
 
-        let player = { x: 175, y: 450, width: 50, height: 50, speed: 20 };
-        let blocks = [];
-        let gameOver = false;
-        let score = 0;
-        let speedMultiplier = 1;
+        let player, blocks, gameOver, score, speedMultiplier;
+
+        function resetGame() {
+            player = { x: 175, y: 450, width: 50, height: 50, speed: 20 };
+            blocks = [];
+            gameOver = false;
+            score = 0;
+            speedMultiplier = 1;
+            updateGame();
+        }
 
         function spawnBlock() {
             let size = Math.random() * 50 + 20;
@@ -86,15 +91,21 @@
             if (gameOver) {
                 ctx.fillStyle = "red";
                 ctx.font = "30px Arial";
-                ctx.fillText("GAME OVER!", 120, 250);
+                ctx.fillText("GAME OVER!", 120, 220);
+                ctx.font = "20px Arial";
+                ctx.fillText("Click to continue", 130, 260);
                 return;
             }
 
             requestAnimationFrame(updateGame);
         }
 
+        canvas.addEventListener("click", () => {
+            if (gameOver) resetGame();
+        });
+
         setInterval(spawnBlock, 1000);
-        updateGame();
+        resetGame();
     </script>
 </body>
 </html>
